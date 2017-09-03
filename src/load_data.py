@@ -50,7 +50,7 @@ class load_data():
         self.data = np.array(self.data)
         self.target = np.array(self.target)
 
-
+    # リポジトリに存在するデータの状態に応じて読み込みを行う．
     def run(self):
 
         # pickleのzipしかなければ解凍する
