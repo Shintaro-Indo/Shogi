@@ -32,7 +32,6 @@ class load_data(): # 注：パスは全てload_dataを読み込むファイル�
 
     # 生データからデータセットを作るメソッド(trainとtestの分け方はランダム)
     def make_dataset(self, size=(64, 80)):
-
         # 生データが存在するディレクトリへのパス
         dir_path = "../dataset/image/annotation_koma_merge/"
 
@@ -51,9 +50,9 @@ class load_data(): # 注：パスは全てload_dataを読み込むファイル�
         self.data = np.array(self.data)
         self.target = np.array(self.target)
 
+
     # データセットに存在するデータの種類に応じて格納を行うメインメソッド
     def run(self):
-
         # pickleのzipしかなければ解凍する
         if ("../dataset/pickle.zip" in glob.glob("../dataset/*")) and ("../dataset/pickle" not in glob.glob("../dataset/*")):
             self.extract_zip(dir_path="../dataset/", file_name="pickle.zip")

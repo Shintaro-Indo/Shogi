@@ -108,16 +108,24 @@ def test(model, x_data, y_data, batchsize=10):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2 and sys.argv[1] in models.keys(): # コマンドライン引数が条件を満たしているとき
-
+    model_name = sys.argv[1]
+    if len(sys.argv) == 2 and model_name in models.keys(): # コマンドライン引数が条件を満たしているとき
         # データの準備
         x_train, y_train, x_test, y_test = preprocessing()
 
         # モデルと最適化アルゴリズムの設定
+        model = L.Classifier(models[model_name]) # モデルの生成
+
+        # 学習済みモデルが存在する場合は利用する
+        try:
+            serializers.load_npz("{}.npz".format(model_name), model)
+        except:
+            pass
+
+        # GPUが使える場合はGPU対応に，
         if gpu:
-            model = L.Classifier(models[sys.argv[1]]).to_gpu(gpu_device) # モデルの生成(GPU対応)
-        else:
-            model = L.Classifier(models[sys.argv[1]])
+            model = model.to_gpu(gpu_device)
+
         optimizer = optimizers.Adam() # 最適化アルゴリズムの選択
         optimizer.setup(model) # アルゴリズムにモデルをフィット
 
@@ -131,6 +139,10 @@ if __name__ == "__main__":
 
             # 評価
             test(model, x_test, y_test, batchsize=100)
+
+        # モデルの保存
+        model.to_cpu() # CPUで計算できるようにしておく
+        serializers.save_npz("{}.npz".format(model_name), model) # npz形式で書き出し
 
     else: # 例外処理
         print("please specify the model (mlp, cnn or resnet) like $ python train.py cnn")

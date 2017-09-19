@@ -67,8 +67,8 @@ def plot_confusion_matrix(y_test, y_pred, classes, normalize=False, title='Confu
 
 
 if __name__ == "__main__":
-
-    if len(sys.argv) == 2 and sys.argv[1] in models.keys(): # コマンドライン引数が条件を満たしているとき
+    model_name = sys.argv[1]
+    if len(sys.argv) == 2 and model_name in models.keys(): # コマンドライン引数が条件を満たしているとき
 
         # データの読み込み
         koma = load_data() # 駒の種類．混同行列に利用．
@@ -78,9 +78,9 @@ if __name__ == "__main__":
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 
         # 学習済みモデルがあれば読み込み，なければ学習させる．
-        model = models[sys.argv[1]] # コマンドライン引数でモデルを選択
+        model = models[model_name] # コマンドライン引数でモデルを選択
         try:
-            clf = joblib.load("../result/{}.pkl".format(sys.argv[1]))
+            clf = joblib.load("../result/{}.pkl".format(model_name))
         except:
             clf = model.fit(x_train, y_train)
 
