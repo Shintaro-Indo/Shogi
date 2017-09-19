@@ -8,6 +8,7 @@ from resnet import ResNetSmall, ResBlock
 
 import time
 from tqdm import tqdm
+import numpy as np
 
 from sklearn.utils import shuffle
 from sklearn.metrics import f1_score
@@ -27,37 +28,35 @@ models = {
 }
 
 
-# GPUの設定
-gpu_device = 0
-cuda.get_device(gpu_device).use()
-xp = cuda.cupy
-
+# GPUが使える場合はGPU対応に
+gpu = False
+try:
+    gpu_device = 0
+    cuda.get_device(gpu_device).use()
+    xp = cuda.cupy
+    gpu = True
+except:
+    xp = np
 
 # 前処理
 def preprocessing():
-    ## 読み込み
+    # データの読み込み
     koma = load_data()
     x = koma.data
     x = x.reshape(x.shape[0], 3, 80, 64) # (データ数，チャネル数(色数)，縦，横)の形式にする．
     y = koma.target
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 
-    ## Chainerでは実数のタイプはfloat32, 整数のタイプはint32に固定しておく必要がある．
+    # Chainerでは実数のタイプはfloat32, 整数のタイプはint32に固定しておく必要がある．
     x_train = x_train.astype(xp.float32) # (40681, 80, 64, 3)
     y_train = y_train.astype(xp.int32) # (40681,)
     x_test = x_test.astype(xp.float32)
     y_test = y_test.astype(xp.int32)
 
-    ## 輝度を揃える
+    # 輝度を揃える
     x_train /= x_train.max()
     x_test /= x_test.max()
     return x_train, y_train, x_test, y_test
-
-
-# 二値化
-# def threshold(x_train, x_test):
-
-
 
 
 # 訓練データに対する正答率，誤差を表示する関数
@@ -115,7 +114,10 @@ if __name__ == "__main__":
         x_train, y_train, x_test, y_test = preprocessing()
 
         # モデルと最適化アルゴリズムの設定
-        model = L.Classifier(models[sys.argv[1]]).to_gpu(gpu_device) # モデルの生成(GPU対応)
+        if gpu:
+            model = L.Classifier(models[sys.argv[1]]).to_gpu(gpu_device) # モデルの生成(GPU対応)
+        else:
+            model = L.Classifier(models[sys.argv[1]])
         optimizer = optimizers.Adam() # 最適化アルゴリズムの選択
         optimizer.setup(model) # アルゴリズムにモデルをフィット
 

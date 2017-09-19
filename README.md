@@ -3,10 +3,12 @@
 **ツリー構造**
 
 	shogi/
-		┣ dataset/← ignore
-			┣ images/
-				┣ annotation_koma_merge/...  
-			┣ pickles/
+		┣ dataset/ ← ignore
+			┣ image/
+				┣ annotation_koma_merge/
+					┣ fu
+					┣ gin ...etc
+			┣ pickle/
 				┣ data.pickle
 				┣ target.pickle  
 		┣ notebook/ ← プロトタイプ  
@@ -14,13 +16,14 @@
 			┣ nn.ipynb
 			┣ non_nn.ipynb
 		┣ src/  
-			┣ data.py： pickleファイルがあれば読み込み， なければ生データからデータセットを作成してpickle化も行う
-			┣ non_nn.py： NN以外の学習  
-			┣ train.py： NNの学習  
+			┣ load_data.py： データがある場合，インスタンス変数 data, target, target_namesで画像，ラベル，クラス名にアクセスできるようにする．
+			┣ non_nn.py： NNを利用しないモデルの学習  
+			┣ train.py： NNを利用したモデルの学習  
 			┣ cnn.py
 			┣ mlp.py
 			┣ resnet.py
-		┣ result/
+		┣ result/ 学習済みモデル
+			┣ rf.pkl
 
 
 **結果**
@@ -29,7 +32,7 @@
 	- 前処理なし：(train, test, F1) = (0.9997, 0.9859, 0.9840)
 	- 適当な閾値(定数)で二値化：(train, test, F1) = (0.8273, 0.7779, 0.6552)  
 	　∵ 画像によっては真っ黒(白)になってしまう
-	　* kNNN，SVMはCPUだと時間ががかるので保留中
+	　* kNNN，DT, SVMはCPUだと時間ががかるので保留中
 
 	MLP
 	- (train, test, F1) = (0.9035, 0.8631, - )  

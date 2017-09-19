@@ -15,9 +15,10 @@ from sklearn.neighbors import  KNeighborsClassifier
 from sklearn.tree import  DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
+from sklearn.externals import joblib
 
 
-# NNを利用しないモデル
+# NNを利用しないモデルの候補
 models = {
     "knn": KNeighborsClassifier(n_jobs=2), # 時間かかる
     "dt": DecisionTreeClassifier(), # 時間かかる
@@ -27,14 +28,14 @@ models = {
 
 
 # 2値化を行う関数
-def binarization(x_data):
-    # グレースケール化
-    x_data =  np.array([cv2.cvtColor(img, cv2.COLOR_RGB2GRAY) for img in x_data])
-
-    # 閾値処理
-    x_data = np.array([cv2.threshold(img, 170, 255, cv2.THRESH_BINARY)[1] for img in x_data])
-
-    return x_data
+# def binarization(x_data):
+#     # グレースケール化
+#     x_data =  np.array([cv2.cvtColor(img, cv2.COLOR_RGB2GRAY) for img in x_data])
+#
+#     # 閾値処理
+#     x_data = np.array([cv2.threshold(img, 170, 255, cv2.THRESH_BINARY)[1] for img in x_data])
+#
+#     return x_data
 
 
 # 混同行列を描画する関数
@@ -76,10 +77,20 @@ if __name__ == "__main__":
         y = koma.target
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 
+        # 学習済みモデルがあれば読み込み，なければ学習させる．
         model = models[sys.argv[1]] # コマンドライン引数でモデルを選択
-        clf = model.fit(x_train, y_train)
+        try:
+            clf = joblib.load("../result/{}.pkl".format(sys.argv[1]))
+        except:
+            clf = model.fit(x_train, y_train)
+
+        # 予測
         y_pred = clf.predict(x_test)
 
+        # モデルの保存
+        joblib.dump(clf, "../result/{}.pkl".format(sys.argv[1]))
+
+        # 結果の表示
         print(model.__class__.__name__)
         print("train:", clf.score(x_train, y_train))
         print("test:", clf.score(x_test, y_test))
@@ -92,6 +103,7 @@ if __name__ == "__main__":
         plot_confusion_matrix(y_test, y_pred, classes=class_names, normalize=True, title='Normalized confusion matrix')
 
         plt.show()
+
 
     else: # 例外処理
         print("please specify the model (knn, dt, rf or svm) like $ python non_nn.py rf ")
