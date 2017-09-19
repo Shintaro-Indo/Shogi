@@ -67,8 +67,9 @@ def plot_confusion_matrix(y_test, y_pred, classes, normalize=False, title='Confu
 
 
 if __name__ == "__main__":
-    model_name = sys.argv[1]
-    if len(sys.argv) == 2 and model_name in models.keys(): # コマンドライン引数が条件を満たしているとき
+
+    if len(sys.argv) == 2 and sys.argv[1] in models.keys(): # コマンドライン引数が条件を満たしているとき
+        model_name = sys.argv[1]
 
         # データの読み込み
         koma = load_data() # 駒の種類．混同行列に利用．
